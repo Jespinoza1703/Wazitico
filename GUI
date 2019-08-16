@@ -1,0 +1,41 @@
+#lang racket
+(require (lib "graphics.ss" "graphics"))
+(open-graphics)
+
+(define width 1300)
+(define height 850)
+(define xOffset 150)
+(define yOffset 50)
+
+;Se dibuja la ventana principal
+(define main-window (open-viewport "Wazitico" width height))
+
+;Se dibujan el marco y la imagen en la ventana
+((draw-rectangle main-window)(make-posn xOffset yOffset) 1000 715 "black")
+((draw-pixmap main-window) "images/poke-bg.png" (make-posn xOffset yOffset) "black")
+
+;Se dibujan los contenedores rojos grandes
+(((draw-pixmap-posn "images/place-container.png") main-window)(make-posn (+ 300 xOffset) (+ 108 yOffset))) ;F
+(((draw-pixmap-posn "images/place-container.png") main-window)(make-posn (+ 298 xOffset) (+ 295 yOffset))) ;G
+(((draw-pixmap-posn "images/place-container.png") main-window)(make-posn (+ 606 xOffset) (+ 116 yOffset))) ;K
+(((draw-pixmap-posn "images/place-container.png") main-window)(make-posn (+ 609 xOffset) (+ 334 yOffset))) ;O
+(((draw-pixmap-posn "images/place-container.png") main-window)(make-posn (+ 505 xOffset) (+ 481 yOffset))) ;M
+;Se dibujan los contenedores rojos peque;os
+(((draw-pixmap-posn "images/place-container2.png") main-window)(make-posn (+ 0 xOffset) (+ 453 yOffset))) ;E
+(((draw-pixmap-posn "images/place-container2.png") main-window)(make-posn (+ 311 xOffset) (+ 427 yOffset))) ;H
+(((draw-pixmap-posn "images/place-container2.png") main-window)(make-posn (+ 311 xOffset) (+ 568 yOffset))) ;I
+(((draw-pixmap-posn "images/place-container2.png") main-window)(make-posn (+ 517 xOffset) (+ 270 yOffset))) ;L
+(((draw-pixmap-posn "images/place-container2.png") main-window)(make-posn (+ 617 xOffset) (+ 270 yOffset))) ;N
+(((draw-pixmap-posn "images/place-container2.png") main-window)(make-posn (+ 760 xOffset) (+ 270 yOffset))) ;Q
+;Se dibujan los contenedores verdes
+(((draw-pixmap-posn "images/place-container3.png") main-window)(make-posn (+ 61 xOffset) (+ 317 yOffset))) ;A
+(((draw-pixmap-posn "images/place-container3.png") main-window)(make-posn (+ 174 xOffset) (+ 317 yOffset))) ;C
+(((draw-pixmap-posn "images/place-container3.png") main-window)(make-posn (+ 174 xOffset) (+ 240 yOffset))) ;B
+(((draw-pixmap-posn "images/place-container3.png") main-window)(make-posn (+ 174 xOffset) (+ 465 yOffset))) ;D
+(((draw-pixmap-posn "images/place-container3.png") main-window)(make-posn (+ 188 xOffset) (+ 580 yOffset))) ;J
+(((draw-pixmap-posn "images/place-container3.png") main-window)(make-posn (+ 523 xOffset) (+ 580 yOffset))) ;T
+(((draw-pixmap-posn "images/place-container3.png") main-window)(make-posn (+ 770 xOffset) (+ 504 yOffset))) ;S
+(((draw-pixmap-posn "images/place-container3.png") main-window)(make-posn (+ 768 xOffset) (+ 354 yOffset))) ;R
+(((draw-pixmap-posn "images/place-container3.png") main-window)(make-posn (+ 768 xOffset) (+ 140 yOffset))) ;P
+
+;((draw-solid-rectangle main-window)(make-posn 234 377) (- 324 221) 10 "red")
