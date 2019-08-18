@@ -1,0 +1,19 @@
+#lang racket
+(require racket/gui)
+
+
+(define (draw-path-aux pair-A pair-B coords-list dc)
+  (cond ((< length coords-list 2)
+         (send dc draw-line
+              (car pair-A) (cdr pair-A)
+              (car pair-B) (cdr pair-B)))
+       (else
+        (send dc draw-line
+             (car pair-A) (cdr pair-A)
+              (car pair-B) (cdr pair-B))
+        (draw-path-aux (car coords-list) (cadr coords-list) (cdr coords-list dc)))))
+
+(define (draw-path coords-list dc)
+  (draw-path-aux (car coords-list) (cadr coords-list) coords-list dc))
+
+

@@ -1,5 +1,6 @@
 #lang racket
 (require racket/gui)
+;(require "../GUI-drawer.rkt")
 
 (define width 1062)
 (define height 764)
@@ -7,6 +8,7 @@
 (define poke-bg-height 715)
 
 
+(define coords-list '((10 10) (10 20) (20 50) (55 32) (85 90)))
 
 ;Creates the menu window for the application
 (define main-frame (new frame%
@@ -84,13 +86,20 @@
 
 ;Draws map1 (Kanto) on screen and aligns it to the center
 (define (draw-map1 frame dc)
-  (send dc draw-bitmap map1-kanto (- (/ width 2) (/ poke-bg-width 2)) (- (/ height 2) (/ poke-bg-height 2)))
-  ;(send dc set-pen "blue" 10 'solid)
-  (send dc draw-line 10 10 100 100))
+  (send dc set-background (make-color 12 91 108))
+  (send dc clear)
+  (send dc set-pen "black" 2 'solid)
+  (send dc draw-rectangle x-offset y-offset (+ 1 poke-bg-width) (+ 1 poke-bg-height))
+  
+  (send dc draw-bitmap map1-kanto x-offset y-offset)
+  (send dc set-pen (make-color 158 57 115) 8 'solid)
+  (send dc draw-line 402 170 633 170))
 
 (define map1-canvas (new canvas%
                    [parent map1-frame]
                    [paint-callback draw-map1]))
+
+(define map1-dc (send map1-canvas get-dc))
 
 
 ;-------------------------------------------------- Johto (second map) --------------------------------------------------
@@ -120,6 +129,7 @@
 
 (define x-offset (- (/ width 2) (/ poke-bg-width 2)))
 (define y-offset (- (/ height 2) (/ poke-bg-height 2)))
+
 ;Draws map2 (Johto) on screen and aligns it to the center
 (define (draw-map2 frame dc)
   (send dc set-background (make-color 12 91 108))
@@ -136,5 +146,9 @@
                    [parent map2-frame]
                    [paint-callback draw-map2]))
 
+(define map2-dc (send map2-canvas get-dc))
 
 
+;-------------------------------------------------------------------------------------
+
+;(draw-path '((5 20) (20 50) (50 45) (50 100) (100 100) (120 150)) map2-dc)
