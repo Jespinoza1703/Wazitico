@@ -1,0 +1,62 @@
+#lang racket
+(require racket/gui)
+
+(define width 1162)
+(define height 864)
+(define poke-bg-width 1000)
+(define poke-bg-height 715)
+
+;Creates the menu window for the application
+(define main-frame (new frame%
+                       [label "Wazitico"]
+                       [width width]
+                       [height height]
+                       [style '(no-resize-border)]))
+
+;Shows the menu window
+(send main-frame show #t)
+
+;Loads images
+(define pokemon-bg (make-object bitmap% "images/poke-bg.png"))
+
+;Creates a container for the menu
+(define main-panel (new horizontal-pane% [parent main-frame]
+                                           [border 25]
+                                           [spacing 25]))
+
+;Creates the frames in which the maps will be displayed
+(define map1-frame (new frame%
+                       [label "Wazitico"]
+                       [width width]
+                       [height height]
+                       [style '(no-resize-border)]))
+
+;Shows the window for the first map, Jhoto
+(define (show-map1 button event)
+  (send main-frame show #f)
+  (send map1-frame show #t))
+
+;Creates map1 (Jhoto) button
+(define button1 (new button%	 
+   	 	[label "Jhoto"]	 
+   	 	[parent main-panel]
+                [min-width (/ width 2)]
+                [min-height 100]
+                [font (make-object font% 50 'default 'normal 'bold)]
+                [callback show-map1]))
+
+
+
+;Draws map1 (Jhoto) on screen and aligns it to the center
+(define (draw-map1 frame dc)
+  (send dc draw-bitmap pokemon-bg (- (/ width 2) (/ poke-bg-width 2)) (- (/ height 2) (/ poke-bg-height 2)))
+  ;(send dc set-pen "blue" 10 'solid)
+  (send dc draw-line 10 10 100 100))
+
+(define map1-canvas (new canvas%
+                   [parent map1-frame]
+                   [paint-callback draw-map1]))
+
+
+
+

@@ -1,10 +1,12 @@
 #lang racket
 (require racket/gui)
 
-(define width 1162)
-(define height 864)
+(define width 1062)
+(define height 764)
 (define poke-bg-width 1000)
 (define poke-bg-height 715)
+
+
 
 ;Creates the menu window for the application
 (define main-frame (new frame%
@@ -16,30 +18,63 @@
 ;Shows the menu window
 (send main-frame show #t)
 
-;Loads images
-(define pokemon-bg (make-object bitmap% "images/poke-bg.png"))
+(define (paint-top frame dc)
+  (send dc set-background "orange")
+  (send dc clear))
+(define menu-canvas (new canvas%
+                   [parent main-frame]
+                   [paint-callback paint-top]))
 
-;Creates a container for the menu
-(define main-panel (new horizontal-pane% [parent main-frame]
+;Loads images
+(define menu-background (make-object bitmap% "images/menu-background.png"))
+(define orange-bg (make-object bitmap% "images/orange.jpg"))
+(define map1-kanto (make-object bitmap% "images/kanto-map.png"))
+(define map2-johto (make-object bitmap% "images/kanto-map.png"))
+(define kanto-image (make-object bitmap% "images/kanto-image.png"))
+(define johto-image (make-object bitmap% "images/johto-image.png"))
+
+;Creates a containers for the menu
+(define first-v-panel (new vertical-pane% [parent main-frame]
                                            [border 25]
                                            [spacing 25]))
 
-;Creates the frames in which the maps will be displayed
+
+(define first-h-panel (new horizontal-pane% [parent first-v-panel]
+                                           [border 25]
+                                           [spacing 25]))
+    
+(new message% [parent first-v-panel]
+    [label "Choose!"]
+    [font (make-object font% 50 'default 'normal 'bold)])
+
+(define (paint-bottom frame dc)
+  (send dc set-background "orange")
+  (send dc clear))
+
+(define menu-canvas2 (new canvas%
+                   [parent main-frame]
+                   [paint-callback paint-bottom]))
+
+
+
+;-------------------------------------------------- Kanto (first map) --------------------------------------------------
+
+;Creates the frames in which the map will be displayed
 (define map1-frame (new frame%
                        [label "Wazitico"]
                        [width width]
                        [height height]
                        [style '(no-resize-border)]))
 
-;Shows the window for the first map, Jhoto
+;Shows the window for the first map, Kanto
 (define (show-map1 button event)
   (send main-frame show #f)
   (send map1-frame show #t))
 
-;Creates map1 (Jhoto) button
+;Creates map1 (Kanto) button
 (define button1 (new button%	 
-   	 	[label "Jhoto"]	 
-   	 	[parent main-panel]
+   	 	[label kanto-image]	 
+   	 	[parent first-h-panel]
                 [min-width (/ width 2)]
                 [min-height 100]
                 [font (make-object font% 50 'default 'normal 'bold)]
@@ -47,9 +82,9 @@
 
 
 
-;Draws map1 (Jhoto) on screen and aligns it to the center
+;Draws map1 (Kanto) on screen and aligns it to the center
 (define (draw-map1 frame dc)
-  (send dc draw-bitmap pokemon-bg (- (/ width 2) (/ poke-bg-width 2)) (- (/ height 2) (/ poke-bg-height 2)))
+  (send dc draw-bitmap map1-kanto (- (/ width 2) (/ poke-bg-width 2)) (- (/ height 2) (/ poke-bg-height 2)))
   ;(send dc set-pen "blue" 10 'solid)
   (send dc draw-line 10 10 100 100))
 
@@ -57,6 +92,49 @@
                    [parent map1-frame]
                    [paint-callback draw-map1]))
 
+
+;-------------------------------------------------- Johto (second map) --------------------------------------------------
+
+;Creates the frame in which the map will be displayed
+(define map2-frame (new frame%
+                       [label "Wazitico"]
+                       [width width]
+                       [height height]
+                       [style '(no-resize-border)]))
+
+;Shows the window for the second map, Johto
+(define (show-map2 button event)
+  (send main-frame show #f)
+  (send map2-frame show #t))
+
+;Creates map2 (Johto) button
+(define button2 (new button%	 
+   	 	[label johto-image]	 
+   	 	[parent first-h-panel]
+                [min-width (/ width 2)]
+                [min-height 100]
+                [font (make-object font% 50 'default 'normal 'bold)]
+                [callback show-map2]))
+
+
+
+(define x-offset (- (/ width 2) (/ poke-bg-width 2)))
+(define y-offset (- (/ height 2) (/ poke-bg-height 2)))
+;Draws map2 (Johto) on screen and aligns it to the center
+(define (draw-map2 frame dc)
+  (send dc set-background (make-color 12 91 108))
+  (send dc clear)
+  (send dc set-pen "black" 2 'solid)
+
+  (send dc draw-rectangle x-offset y-offset (+ 1 poke-bg-width) (+ 1 poke-bg-height))
+  
+  (send dc draw-bitmap map2-johto x-offset y-offset)
+  (send dc set-pen (make-color 158 57 115) 8 'solid)
+  (send dc draw-line 402 170 633 170))
+
+(define map2-canvas (new canvas%
+                   [parent map2-frame]
+                   [paint-callback draw-map2]))
 
 
 
