@@ -149,6 +149,32 @@
 (define map2-dc (send map2-canvas get-dc))
 
 
-;-------------------------------------------------------------------------------------
+;------------------------------------------------------------ Drawing paths -----------------------------------------------------------
 
-;(draw-path '((5 20) (20 50) (50 45) (50 100) (100 100) (120 150)) map2-dc)
+(define (draw-path-aux pair-A pair-B coords-list dc)
+  (cond ((< (length coords-list) 2)
+         (send dc draw-line
+              (car pair-A) (cadr pair-A)
+              (car pair-B) (cadr pair-B)))
+       (else
+        (send dc draw-line
+             (car pair-A) (cadr pair-A)
+             (car pair-B) (cadr pair-B))
+        (draw-path-aux (car coords-list) (cadr coords-list) (cdr coords-list) dc))))
+
+(define (draw-path coords-list dc)
+  (draw-path-aux (car coords-list) (cadr coords-list) coords-list dc))
+
+
+
+; ------------------------------- Test -------------------------------
+(send map2-dc set-pen "yellow" 20 'solid)
+
+(send map2-dc draw-line 10 10 100 100)
+
+(draw-path '((0 100) (100 150) (150 300) (300 300) (450 465)) map2-dc)
+
+(send map2-canvas refresh-now)
+
+
+
