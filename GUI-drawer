@@ -44,4 +44,4 @@
 (draw-path '((10 10) (10 15) (15 50) (50 50) (50 65)) map2-dc)
 
 
-(send map2-canvas refresh
+(send map2-canvas refresh)

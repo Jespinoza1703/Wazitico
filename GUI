@@ -7,9 +7,6 @@
 (define poke-bg-width 1000)
 (define poke-bg-height 715)
 
-
-(define coords-list '((10 10) (10 20) (20 50) (55 32) (85 90)))
-
 ;Creates the menu window for the application
 (define main-frame (new frame%
                        [label "Wazitico"]
@@ -139,8 +136,7 @@
   (send dc draw-rectangle x-offset y-offset (+ 1 poke-bg-width) (+ 1 poke-bg-height))
   
   (send dc draw-bitmap map2-johto x-offset y-offset)
-  (send dc set-pen (make-color 158 57 115) 8 'solid)
-  (send dc draw-line 402 170 633 170))
+  (send dc set-pen (make-color 158 57 115) 15 'solid))
 
 (define map2-canvas (new canvas%
                    [parent map2-frame]
@@ -168,13 +164,15 @@
 
 
 ; ------------------------------- Test -------------------------------
-(send map2-dc set-pen "yellow" 20 'solid)
 
-(send map2-dc draw-line 10 10 100 100)
+(define coords-list '((216 500) (216 352) (365 352) (365 168) (672 168)))
+(define (show-path button event)
+  (sleep/yield 1)
+  (draw-path coords-list map2-dc))
 
-(draw-path '((0 100) (100 150) (150 300) (300 300) (450 465)) map2-dc)
-
-(send map2-canvas refresh-now)
-
-
+;Creates map2 (Johto) button
+(define button3 (new button%
+                    [label "Press"]
+                    [parent map2-frame]
+                    [callback show-path]))
 
