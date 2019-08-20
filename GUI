@@ -186,50 +186,65 @@
 
 
 
-;-------------------------------Test--------------------------------
+; ------------------------------- Define recatangles for each graphic node -------------------------------
 
+;Class for personalized rectangle
 
-; ------------------------------- Define recatngles on each graphic node -------------------------------
-
-;Function for personalized brush
 (define no-brush (new brush% [style 'transparent]))
+(define no-pen (new pen% [style 'transparent]))
+
+(define rect%
+  (class object%
+    (init parent x y width height dc)
+    (super-new)
+  
+    (define current-x x)
+    (define current-y y)
+    (define current-width width)
+    (define current-height height)
+ 
+    (define/public (get-x)
+      current-x)
+ 
+    (define/public (get-y)
+      current-y)
+
+    (define/public (get-width)
+      current-width)
+ 
+    (define/public (get-height)
+      current-height)
+
+    (send dc draw-rectangle current-x current-y current-width current-height)))
+
 
 
 (sleep/yield 2)
 (send map2-dc set-brush no-brush)
-(send map2-dc set-pen "black" 1 'solid)
+(send map2-dc set-pen "black" 5 'solid)
 
-(define a (send map2-dc draw-rectangle 78 333 42 41))
-(define b (send map2-dc draw-rectangle 197 333 42 41))
-(define c (send map2-dc draw-rectangle 197 254 42 41))
-(define d (send map2-dc draw-rectangle 197 480 42 41))
-(define e (send map2-dc draw-rectangle 33 480 42 41))
-(define j (send map2-dc draw-rectangle 200 596 42 41))
-(define h (send map2-dc draw-rectangle 345 451 42 41))
-(define i (send map2-dc draw-rectangle 345 596 42 41))
-(define t (send map2-dc draw-rectangle 549 596 42 41))
-(define l (send map2-dc draw-rectangle 549 300 42 41))
-(define n (send map2-dc draw-rectangle 650 300 42 41))
-(define q (send map2-dc draw-rectangle 791 300 42 41))
-(define p (send map2-dc draw-rectangle 791 156 42 41))
-(define r (send map2-dc draw-rectangle 791 372 42 41))
-(define s (send map2-dc draw-rectangle 791 520 42 41))
-
-
-(define f (send map2-dc draw-rectangle 331 134 66 66))
-(define g (send map2-dc draw-rectangle 331 319 66 66))
-(define k (send map2-dc draw-rectangle 639 134 66 66))
-(define o (send map2-dc draw-rectangle 639 358 66 66))
-(define m (send map2-dc draw-rectangle 538 508 66 66))
+(define a (new rect% [parent map2-canvas] [x 81] [y 333] [width 42] [height 41] [dc map2-dc]))
+(define b (new rect% [parent map2-canvas] [x 197] [y 333] [width 42] [height 41] [dc map2-dc]))
+(define c (new rect% [parent map2-canvas] [x 197] [y 254] [width 42] [height 41] [dc map2-dc]))
+(define d (new rect% [parent map2-canvas] [x 197] [y 480] [width 42] [height 41] [dc map2-dc]))
+(define e (new rect% [parent map2-canvas] [x 33] [y 480] [width 42] [height 41] [dc map2-dc]))
+(define j (new rect% [parent map2-canvas] [x 200] [y 596] [width 42] [height 41] [dc map2-dc]))
+(define h (new rect% [parent map2-canvas] [x 345] [y 451] [width 42] [height 41] [dc map2-dc]))
+(define i (new rect% [parent map2-canvas] [x 345] [y 596] [width 42] [height 41] [dc map2-dc]))
+(define t (new rect% [parent map2-canvas] [x 549] [y 596] [width 42] [height 41] [dc map2-dc]))
+(define l (new rect% [parent map2-canvas] [x 549] [y 300] [width 42] [height 41] [dc map2-dc]))
+(define n (new rect% [parent map2-canvas] [x 650] [y 300] [width 42] [height 41] [dc map2-dc]))
+(define q (new rect% [parent map2-canvas] [x 791] [y 300] [width 42] [height 41] [dc map2-dc]))
+(define p (new rect% [parent map2-canvas] [x 791] [y 156] [width 42] [height 41] [dc map2-dc]))
+(define r (new rect% [parent map2-canvas] [x 791] [y 372] [width 42] [height 41] [dc map2-dc]))
+(define s (new rect% [parent map2-canvas] [x 791] [y 520] [width 42] [height 41] [dc map2-dc]))
 
 
-
-
-
-
-
-
-
+(define f (new rect% [parent map2-canvas] [x 331] [y 134] [width 66] [height 66] [dc map2-dc]))
+(define g (new rect% [parent map2-canvas] [x 331] [y 319] [width 66] [height 66] [dc map2-dc]))
+(define k (new rect% [parent map2-canvas] [x 639] [y 134] [width 66] [height 66] [dc map2-dc]))
+(define o (new rect% [parent map2-canvas] [x 639] [y 358] [width 66] [height 66] [dc map2-dc]))
+(define m (new rect% [parent map2-canvas] [x 538] [y 508] [width 66] [height 66] [dc map2-dc]))
 
 
 
