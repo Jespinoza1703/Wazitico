@@ -5,8 +5,8 @@
 (define height 764)
 (define poke-bg-width 1000)
 (define poke-bg-height 715)
-(define big-rect-width 66)
-(define small-rect-width 42)
+(define big-rect-side 66)
+(define small-rect-side 42)
 
 ;Creates the menu window for the application
 (define main-frame (new frame%
@@ -55,6 +55,14 @@
                    [parent main-frame]
                    [paint-callback paint-bottom]))
 
+;----------------------------- Funtion for collision between rects and mouse ------------------------------
+
+(define (collision-rect? mouse-x mouse-y rect-x rect-y width height)
+  (cond ((and (<= mouse-x (+ rect-x width)) (>= mouse-x rect-x)
+             (<= mouse-y (+ rect-y height)) (>= mouse-y rect-y)) #t)
+
+       (else #f)))
+       
 
 ;------------------------------------ Hash for graphic-logic node connection ------------------------------------
 
@@ -79,6 +87,10 @@
                      (o ((639 358) "big"))
                      (m ((538 508) "big"))))
 
+(car (assoc 'a rect-hash)) ; a
+(cadr (assoc 'a rect-hash)) ; '((81 333) "small")
+(caadr (assoc 'a rect-hash)) ; (81 333)
+(equal? (cadadr (assoc 'a rect-hash)) "small") ; #s
 
 
 ; ------------------------------- Test -------------------------------
@@ -108,10 +120,11 @@
 
 (define (detect-mouse-pos x y dc)
   (sleep/yield 0.01)
-  (print test)
-  (cond ((= test 1) (and (and (sleep/yield 0.01) (draw-path coords-list dc)) (set! test 0)))
+  (cond ((and (= test 1) (collision-rect? x y 40 500 big-rect-side big-rect-side)) (and (and (sleep/yield 0.01) (draw-path coords-list dc)) (set! test 0)))
+       ((collision-rect? x y 550 520 big-rect-side big-rect-side) (set! test 1))
        (else
-        (set! test 1))))
+        (set! test 0))))
+
 
 
 (define my-canvas%
@@ -162,41 +175,6 @@
 
 (define map1-dc (send map1-canvas get-dc))
 
-; ------------------------------- Define recatangles for each graphic node -------------------------------
-
-;Class for personalized rectangle
-
-(define no-brush (new brush% [style 'transparent]))
-(define no-pen (new pen% [style 'transparent]))
-
-(define rect%
-  (class object%
-    (init parent x y width height char dc)
-    (super-new)
-  
-    (define current-x x)
-    (define current-y y)
-    (define current-width width)
-    (define current-height height)
-    (define current-char char)
- 
-    (define/public (get-x)
-      current-x)
- 
-    (define/public (get-y)
-      current-y)
-
-    (define/public (get-width)
-      current-width)
- 
-    (define/public (get-height)
-      current-height)
-
-    (define/public (get-char)
-      current-char)
-
-    (send dc draw-rectangle current-x current-y current-width current-height)))
-
 
 ;-------------------------------------------------- Johto (second map) --------------------------------------------------
 
@@ -242,41 +220,6 @@
                    [paint-callback draw-map2]))
 
 (define map2-dc (send map2-canvas get-dc))
-
-
-
-
-
-;--------------------------------------------------- Implemented rect class ---------------------------------------------------
-;(sleep/yield 3)
-;(send map1-dc set-brush no-brush)
-;(send map1-dc set-pen no-pen)
-;
-;(define a (new rect% [parent map1-canvas] [x 81] [y 333] [width 42] [height 41] [char 'a] [dc map1-dc]))
-;(define b (new rect% [parent map1-canvas] [x 197] [y 333] [width 42] [height 41] [char 'b] [dc map1-dc]))
-;(define c (new rect% [parent map1-canvas] [x 197] [y 254] [width 42] [height 41] [char 'c] [dc map1-dc]))
-;(define d (new rect% [parent map1-canvas] [x 197] [y 480] [width 42] [height 41] [char 'd] [dc map1-dc]))
-;(define e (new rect% [parent map1-canvas] [x 33] [y 480] [width 42] [height 41] [char 'e] [dc map1-dc]))
-;(define j (new rect% [parent map1-canvas] [x 200] [y 596] [width 42] [height 41] [char 'j] [dc map1-dc]))
-;(define h (new rect% [parent map1-canvas] [x 345] [y 451] [width 42] [height 41] [char 'h] [dc map1-dc]))
-;(define i (new rect% [parent map1-canvas] [x 345] [y 596] [width 42] [height 41] [char 'i] [dc map1-dc]))
-;(define t (new rect% [parent map1-canvas] [x 549] [y 596] [width 42] [height 41] [char 't] [dc map1-dc]))
-;(define l (new rect% [parent map1-canvas] [x 549] [y 300] [width 42] [height 41] [char 'l] [dc map1-dc]))
-;(define n (new rect% [parent map1-canvas] [x 650] [y 300] [width 42] [height 41] [char 'n] [dc map1-dc]))
-;(define q (new rect% [parent map1-canvas] [x 791] [y 300] [width 42] [height 41] [char 'q] [dc map1-dc]))
-;(define p (new rect% [parent map1-canvas] [x 791] [y 156] [width 42] [height 41] [char 'p] [dc map1-dc]))
-;(define r (new rect% [parent map1-canvas] [x 791] [y 372] [width 42] [height 41] [char 'r] [dc map1-dc]))
-;(define s (new rect% [parent map1-canvas] [x 791] [y 520] [width 42] [height 41] [char 's] [dc map1-dc]))
-;
-;
-;(define f (new rect% [parent map1-canvas] [x 331] [y 134] [width 66] [height 66] [char 'f] [dc map1-dc]))
-;(define g (new rect% [parent map1-canvas] [x 331] [y 319] [width 66] [height 66] [char 'g] [dc map1-dc]))
-;(define k (new rect% [parent map1-canvas] [x 639] [y 134] [width 66] [height 66] [char 'k] [dc map1-dc]))
-;(define o (new rect% [parent map1-canvas] [x 639] [y 358] [width 66] [height 66] [char 'o] [dc map1-dc]))
-;(define m (new rect% [parent map1-canvas] [x 538] [y 508] [width 66] [height 66] [char 'm] [dc map1-dc]))
-
-
-
 
 
 
