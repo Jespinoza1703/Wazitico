@@ -55,42 +55,52 @@
                    [parent main-frame]
                    [paint-callback paint-bottom]))
 
-;----------------------------- Funtion for collision between rects and mouse ------------------------------
-
-(define (collision-rect? mouse-x mouse-y rect-x rect-y width height)
-  (cond ((and (<= mouse-x (+ rect-x width)) (>= mouse-x rect-x)
-             (<= mouse-y (+ rect-y height)) (>= mouse-y rect-y)) #t)
-
-       (else #f)))
-       
 
 ;------------------------------------ Hash for graphic-logic node connection ------------------------------------
 
-(define rect-hash '( (a ((81 333) "small"))
-                     (b ((197 333) "small"))
-                     (c ((197 254) "small"))
-                     (d ((197 480) "small"))
-                     (j ((200 596) "small"))
-                     (h ((345 451) "small"))
-                     (i ((345 596) "small"))
-                     (t ((549 596) "small"))
-                     (l ((549 300) "small"))
-                     (n ((650 300) "small"))
-                     (q ((791 300) "small"))
-                     (p ((791 156) "small"))
-                     (r ((791 372) "small"))
-                     (s ((791 520) "small"))
-                     (e ((33 482) "small"))
-                     (f ((331 134) "big"))
-                     (g ((331 319) "big"))
-                     (k ((639 134) "big"))
-                     (o ((639 358) "big"))
-                     (m ((538 508) "big"))))
+(define rect-list '( ((81 333) a 42)
+                     ((197 333) b 42)
+                     ((197 254) c 42)
+                     ((197 480) d 42)
+                     ((200 596) j 42)
+                     ((345 451) h 42)
+                     ((345 596) i 42)
+                     ((549 596) t 42)
+                     ((549 300) l 42)
+                     ((650 300) n 42)
+                     ((791 300) q 42)
+                     ((791 156) p 42)
+                     ((791 372) r 42)
+                     ((791 520) s 42)
+                     ((33 482) e 42)
+                     ((331 134) f 66)
+                     ((331 319) g 66)
+                     ((639 134) k 66)
+                     ((639 358) o 66)
+                     ((538 508) m 66)))
 
-(car (assoc 'a rect-hash)) ; a
-(cadr (assoc 'a rect-hash)) ; '((81 333) "small")
-(caadr (assoc 'a rect-hash)) ; (81 333)
-(equal? (cadadr (assoc 'a rect-hash)) "small") ; #s
+
+;----------------------------- Funtion for collision between rects and mouse ------------------------------
+
+(define (get-char list)
+  (second (cadr rect-list)))
+
+; Function for mouse click vs rectangles collision
+(define (collision-rect? mouse-x mouse-y rect-x rect-y side)
+  (cond ((and (<= mouse-x (+ rect-x side)) (>= mouse-x rect-x)
+             (<= mouse-y (+ rect-y side)) (>= mouse-y rect-y)) #t)
+       (else #f)))
+
+; Detects which rectangle has been clicked
+(define (collision-aux mouse-x mouse-y coords side list)
+  (cond ((< (length list) 1) #f)
+       ((collision-rect? mouse-x mouse-y (first coords) (second coords) side) (get-char list))
+       (else
+        (collision-aux mouse-x mouse-y (caadr list) (last (cadr list)) (cdr list)))))
+
+
+(define (collision? mouse-x mouse-y list)
+  (collision-aux mouse-x mouse-y (caadr list) (last (cadr list)) list))
 
 
 ; ------------------------------- Test -------------------------------
@@ -120,8 +130,8 @@
 
 (define (detect-mouse-pos x y dc)
   (sleep/yield 0.01)
-  (cond ((and (= test 1) (collision-rect? x y 40 500 big-rect-side big-rect-side)) (and (and (sleep/yield 0.01) (draw-path coords-list dc)) (set! test 0)))
-       ((collision-rect? x y 550 520 big-rect-side big-rect-side) (set! test 1))
+  (cond ((and (= test 1) (collision? x y rect-list)) (and (and (sleep/yield 0.01) (draw-path coords-list dc)) (set! test 0)))
+       ((collision? x y rect-list) (set! test 1))
        (else
         (set! test 0))))
 
