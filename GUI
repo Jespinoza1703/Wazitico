@@ -157,8 +157,6 @@
        (else (add-last (second (assoc (first char-list) coords-list)) (charList-to-coordsList-aux (cdr char-list) coords)))))
 
 
-(charList-to-coordsList '(a b f g h) '())
-
 ;------------------------------------------------------------ Drawing paths -----------------------------------------------------------
 
 
@@ -181,12 +179,27 @@
 
 ;-------------------------------------- Canvas wrapper, override events --------------------------------------
 
+
+(define (shortest-path nodeA nodeB)
+  (cdr (ruta-optima (rutasPesos (generador-rutas nodeA nodeB kanto)))))
+
+(define (draw-others nodeA nodeB list dc)
+  (cond ((empty? list) #f)
+       ((draw-path (charList-to-coordsList (first list) '()) dc) (draw-others nodeA nodeB (cdr (generador-rutas nodeA nodeB kanto)) dc))))
+
+(define (draw-all nodeA nodeB dc)
+  (send dc set-pen (make-color 158 57 115) 15 'solid)
+  (draw-path (charList-to-coordsList (shortest-path nodeA nodeB) '()) dc)
+  (send dc set-pen "black" 5 'solid)
+  (draw-others nodeA nodeB (generador-rutas nodeA nodeB kanto) dc ))
+
+  
 (define nodeA 'a)
 (define nodeB 'b)
 
 (define (detect-mouse-pos x y dc)
   (sleep/yield 0.01)
-  (cond ((and (= click 1) (set! nodeB (collision? x y rect-list))) (draw-path (charList-to-coordsList '(a b d f t o) '()) dc))
+  (cond ((and (= click 1) (set! nodeB (collision? x y rect-list))) (draw-all nodeA nodeB dc))
        ((set! nodeA (collision? x y rect-list)) (set! click 1))
        (else
         (set! click 0))))
