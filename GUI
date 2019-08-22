@@ -1,40 +1,68 @@
+#|
+---------------------------------- Important Functions ----------------------------------
+1. (collision? mouse-x mouse-y list)
+; Detects collisions between graphical nodes and mouse clicks.
+
+2. (charList-to-coordsList char-list coords)
+; Receives a list of nodes (chars) and returns a list,
+; which contains respective pair of coordenates for each node.
+
+3. (draw-path-aux pair-A pair-B coords-list dc)
+; Draws the path between two graphical nodes on the map, using lines.
+
+4. (draw-all nodeA nodeB dc)
+; Draws all posible paths between nodeA and nodeB.
+
+5. (define (detect-mouse-pos x y dc)
+; Obtains mouse x and y positions and checks if they collide with
+; graphical nodes. If they do, all paths are drawn.
+
+|#
+
+
+
 #lang racket
 (require racket/gui)
 (require "WaziticoLogica")
 
+
+; Size variables
 (define width 1062)
 (define height 764)
 (define poke-bg-width 1000)
 (define poke-bg-height 715)
-(define big-rect-side 66)
-(define small-rect-side 42)
 
-;Creates the menu window for the application
+
+;--------------------------------------- Menu -----------------------------------------
+; Creates the menu window for the application
 (define main-frame (new frame%
                        [label "Wazitico"]
                        [width width]
                        [height height]
                        [style '(no-resize-border)]))
 
-;Shows the menu window
+
+; Shows the menu window
 (send main-frame show #t)
 
+
+; Creates a wide orange line on top of the menu (for visual purposes)
 (define (paint-top frame dc)
   (send dc set-background "orange")
   (send dc clear))
+
+; Creates the menu canvas
 (define menu-canvas (new canvas%
                    [parent main-frame]
                    [paint-callback paint-top]))
 
-;Loads images
-(define menu-background (make-object bitmap% "images/menu-background.png"))
-(define orange-bg (make-object bitmap% "images/orange.jpg"))
+; Loads images
 (define map1-kanto (make-object bitmap% "images/kanto-map.png"))
 (define map2-johto (make-object bitmap% "images/kanto-map.png"))
 (define kanto-image (make-object bitmap% "images/kanto-image.png"))
 (define johto-image (make-object bitmap% "images/johto-image.png"))
 
-;Creates a containers for the menu
+; Creates horizontal and vertical containers for the menu
 (define first-v-panel (new vertical-pane% [parent main-frame]
                                            [border 25]
                                            [spacing 25]))
@@ -43,14 +71,20 @@
 (define first-h-panel (new horizontal-pane% [parent first-v-panel]
                                            [border 25]
                                            [spacing 25]))
-    
+
+
+; Shows a message on the main menu
 (new message% [parent first-v-panel]
     [label "Choose!"]
     [font (make-object font% 50 'default 'normal 'bold)])
 
+
+
+; Creates a wide orange line on the bottom of the menu (for visual purposes)
 (define (paint-bottom frame dc)
   (send dc set-background "orange")
   (send dc clear))
+
 
 (define menu-canvas2 (new canvas%
                    [parent main-frame]
@@ -58,6 +92,8 @@
 
 
 ;------------------------------------ Hash for graphic-logic node connection ------------------------------------
+
+; List for connecting coordenates to each node, and the graphical rectangle's width
 
 (define rect-list '( ((81 333) a 42)
                      ((197 254) b 42)
@@ -80,6 +116,7 @@
                      ((639 358) o 66)
                      ((538 508) m 66)))
 
+; List for drawing paths between nodes
 (define coords-list '( (a ((102 354)))
                      (b ((218 275)))
                      (c ((218 354)))
@@ -103,21 +140,26 @@
 
 
 
-;----------------------------- Funtion for collision between rects and mouse ------------------------------
+;----------------------------- Funtions for collision between graphic rectangles and mouse ------------------------------
 
+; Obtains the specific char for its coordenates in the list
 (define (get-char list)
   (second (first list)))
 
+
+; Obtains the specific coordenates for its char in the list
 (define (get-coords list)
   (caar list))
 
-; Function for mouse click vs rectangles collision
+
+; Function that detects collision between mouse click and rectangles 
 (define (collision-rect? mouse-x mouse-y rect-x rect-y side)
   (cond ((and (<= mouse-x (+ rect-x side)) (>= mouse-x rect-x)
              (<= mouse-y (+ rect-y side)) (>= mouse-y rect-y)) #t)
        (else #f)))
 
-; Detects which rectangle has been clicked
+
+; Detects which node from the rect-list has been clicked and returns it
 (define (collision-aux mouse-x mouse-y coords side list)
   (cond ((< (length list) 1) #f)
        ((collision-rect? mouse-x mouse-y (first coords) (second coords) side) (get-char list))
@@ -133,20 +175,20 @@
 
 (define click 0)
 
-;list1 is rect-list, list2 is coords list
+; Transforms a node (char) to its associated coordenates in rect-list
 (define (from-char-to-coords char)
   (from-char-to-coords-aux char rect-list '()))
+
 
 (define (from-char-to-coords-aux char list list2)
   (cond ((equal? char (get-char list)) (cons (get-coords list) list2))
        (else
         (from-char-to-coords-aux char (cdr list) '())))) 
 
-(define (add-last list value)
-  (append list value))
 
   
-;Translates the char path to coords for drawing on canvas
+; Translates the char path to a coordenates list for drawing on canvas
+; For example (charList-to-coordsList '(a b g f) '()) ----> '((102 354) (218 275) (366 354) (366 167))
 
 (define (charList-to-coordsList char-list coords)
   (charList-to-coordsList-aux char-list coords))
@@ -154,11 +196,14 @@
 
 (define (charList-to-coordsList-aux char-list coords)
   (cond ((empty? char-list) coords)
-       (else (add-last (second (assoc (first char-list) coords-list)) (charList-to-coordsList-aux (cdr char-list) coords)))))
+       (else (append (second (assoc (first char-list) coords-list)) (charList-to-coordsList-aux (cdr char-list) coords)))))
 
 
 ;------------------------------------------------------------ Drawing paths -----------------------------------------------------------
 
+; Receives two sets of node coordentaes and a list of coordenates (the full path).
+; It's a recursive function that goes through the list of coordentas
+; to draw lines between the two given node coords
 
 (define (draw-path-aux pair-A pair-B coords-list dc)
   (sleep/yield 0.01)
@@ -173,20 +218,26 @@
              (car pair-B) (cadr pair-B))
         (draw-path-aux (car coords-list) (cadr coords-list) (cdr coords-list) dc))))
 
+
 (define (draw-path coords-list dc)
   (draw-path-aux (car coords-list) (cadr coords-list) coords-list dc))
 
 
 ;-------------------------------------- Draw routes of all paths --------------------------------------
 
-
+; Obtains the shortest path between two nodes
 (define (shortest-path nodeA nodeB)
   (cdr (ruta-optima (rutasPesos (generador-rutas nodeA nodeB kanto)))))
 
+
+; Obtains all other paths between the same two nodes given to "shortest-path"
 (define (draw-others nodeA nodeB list dc)
   (cond ((empty? list) #f)
        ((draw-path (charList-to-coordsList (first list) '()) dc) (draw-others nodeA nodeB (cdr list) dc))))
 
+
+; Draws all posible paths between two nodes, implementing the two functions above.
+; The shortest path is draw in blue, and the rest in orange
 (define (draw-all nodeA nodeB dc)
   (send dc set-pen "blue" 15 'solid)
   (draw-path (charList-to-coordsList (shortest-path nodeA nodeB) '()) dc)
@@ -194,10 +245,13 @@
   (draw-others nodeA nodeB (generador-rutas nodeA nodeB kanto) dc))
 
 
-
+; Defines two node variables for obtaining routes
 (define nodeA 'a)
 (define nodeB 'b)
 
+
+; Detects the click's coordenates. If it has received two clicks, and both are elements in rect-list,
+; then the "draw-all" function is called, and the paths are drawn
 (define (detect-mouse-pos x y dc)
   (sleep/yield 0.01)
   (cond ((and (= click 1) (set! nodeB (collision? x y rect-list))) (draw-all nodeA nodeB dc))
@@ -206,6 +260,8 @@
         (set! click 0))))
 
 
+; Overries canvas class to create a function
+; which detects the mouse click's x and y positions (detect-mouse-pos)
 (define my-canvas%
   (class canvas%
     (super-new)
@@ -213,21 +269,23 @@
       (when (send event button-down? 'any)
         (detect-mouse-pos (send event get-x) (send event get-y) (send this get-dc))))))
 
+
+
 ;-------------------------------------------------- Kanto (first map) --------------------------------------------------
 
-;Creates the frames in which the map will be displayed
+; Creates the frames in which the map will be displayed
 (define map1-frame (new frame%
                        [label "Wazitico"]
                        [width width]
                        [height height]
                        [style '(no-resize-border)]))
 
-;Shows the window for the first map, Kanto
+; Shows the window for the first map, Kanto
 (define (show-map1 button event)
   (send main-frame show #f)
   (send map1-frame show #t))
 
-;Creates map1 (Kanto) button
+; Creates map1 (Kanto) button
 (define button1 (new button%	 
    	 	[label kanto-image]	 
    	 	[parent first-h-panel]
@@ -238,7 +296,7 @@
 
   
 
-;Draws map1 (Kanto) on screen and aligns it to the center
+; Draws map1 (Kanto) on screen and aligns it to the center
 (define (draw-map1 frame dc)
   (send dc set-background (make-color 12 91 108))
   (send dc clear)
@@ -247,18 +305,24 @@
   
   (send dc draw-bitmap map1-kanto x-offset y-offset))
 
+
+; Defines the canvas for the first map (Kanto)
 (define map1-canvas (new my-canvas%
                    [parent map1-frame]
                    [paint-callback draw-map1]))
 
+
+; Gets map1-canvas' dc to use it elsewhere
 (define map1-dc (send map1-canvas get-dc))
 
 
+;Clears canvas and re-draws the map
 (define (clear-canvas1 button event)
   (send map1-dc clear)
   (draw-map1 map1-frame map1-dc))
 
-;Clears canvas
+
+; Calls clear-canvas-1
 (define clear-button (new button%	 
    	 	[label "Choose again!"]	 
    	 	[parent map1-frame]
@@ -266,6 +330,8 @@
                 [min-height 20]
                 [callback clear-canvas1]))
 
+
+; Returns to main menu frame
 (define (return button event)
   (send map1-frame show #f)
   (send main-frame show #t))
@@ -281,19 +347,19 @@
 
 ;-------------------------------------------------- Johto (second map) --------------------------------------------------
 
-;Creates the frame in which the map will be displayed
+; Creates the frame in which the map will be displayed
 (define map2-frame (new frame%
                        [label "Wazitico"]
                        [width width]
                        [height height]
                        [style '(no-resize-border)]))
 
-;Shows the window for the second map, Johto
+; Shows the window for the second map, Johto
 (define (show-map2 button event)
   (send main-frame show #f)
   (send map2-frame show #t))
 
-;Creates map2 (Johto) button
+; Creates map2 (Johto) button
 (define button2 (new button%	 
    	 	[label johto-image]	 
    	 	[parent first-h-panel]
@@ -307,7 +373,7 @@
 (define x-offset (- (/ width 2) (/ poke-bg-width 2)))
 (define y-offset (- (/ height 2) (/ poke-bg-height 2)))
 
-;Draws map2 (Johto) on screen and aligns it to the center
+; Draws map2 (Johto) on screen and aligns it to the center
 (define (draw-map2 frame dc)
   (send dc set-background (make-color 12 91 108))
   (send dc clear)
