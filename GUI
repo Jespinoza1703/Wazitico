@@ -1,5 +1,6 @@
 #lang racket
 (require racket/gui)
+(require "WaziticoLogica")
 
 (define width 1062)
 (define height 764)
@@ -83,7 +84,10 @@
 ;----------------------------- Funtion for collision between rects and mouse ------------------------------
 
 (define (get-char list)
-  (second (cadr rect-list)))
+  (second (first list)))
+
+(define (get-coords list)
+  (caar list))
 
 ; Function for mouse click vs rectangles collision
 (define (collision-rect? mouse-x mouse-y rect-x rect-y side)
@@ -100,16 +104,51 @@
 
 
 (define (collision? mouse-x mouse-y list)
-  (collision-aux mouse-x mouse-y (caadr list) (last (cadr list)) list))
+  (collision-aux mouse-x mouse-y (caar list) (last (cadr list)) list))
 
 
 ; ------------------------------- Test -------------------------------
 
 (define coords-list '((216 500) (216 352) (365 352) (365 168) (672 168)))
 
+
+;---------------------------------- Transform char list to coords list ---------------------------------
+
+(define click 0)
+
+;list1 is rect-list, list2 is coords list
+(define (from-char-to-coords char)
+  (from-char-to-coords-aux char rect-list '()))
+
+(define (from-char-to-coords-aux char list list2)
+  (cond ((equal? char (get-char list)) (cons (get-coords list) list2))
+       (else
+        (from-char-to-coords-aux char (cdr list) '())))) 
+
+(define (add-last list value)
+  (append list value))
+
+  
+;Translates the char path to coords for drawing on canvas
+(define (charList-to-coordsList char-list coords)
+  (charList-to-coordsList-aux char-list coords rect-list))
+
+   
+(define (charList-to-coordsList-aux char-list coords list2)
+  (cond ((empty? char-list) coords)
+       ((equal? (first char-list) (get-char list2)) (add-last (from-char-to-coords (first char-list)) (charList-to-coordsList-aux char-list coords (cdr list2))))
+       (else
+        (charList-to-coordsList-aux (cdr char-list) coords list2))))
+
+
+(charList-to-coordsList '(a b f g h) '())
+
 ;------------------------------------------------------------ Drawing paths -----------------------------------------------------------
 
+
 (define (draw-path-aux pair-A pair-B coords-list dc)
+  (sleep/yield 0.01)
+  (set! click 0)
   (cond ((< (length coords-list) 2)
          (send dc draw-line
               (car pair-A) (cadr pair-A)
@@ -126,15 +165,15 @@
 
 ;-------------------------------------- Canvas wrapper, override events --------------------------------------
 
-(define test 0)
+(define nodeA 'a)
+(define nodeB 'b)
 
 (define (detect-mouse-pos x y dc)
   (sleep/yield 0.01)
-  (cond ((and (= test 1) (collision? x y rect-list)) (and (and (sleep/yield 0.01) (draw-path coords-list dc)) (set! test 0)))
-       ((collision? x y rect-list) (set! test 1))
+  (cond ((and (= click 1) (set! nodeB (collision? x y rect-list))) (draw-path (charList-to-coordsList '(a b d f t o) '()) dc))
+       ((set! nodeA (collision? x y rect-list)) (set! click 1))
        (else
-        (set! test 0))))
-
+        (set! click 0))))
 
 
 (define my-canvas%
@@ -230,11 +269,4 @@
                    [paint-callback draw-map2]))
 
 (define map2-dc (send map2-canvas get-dc))
-
-
-
-
-
-
-
 

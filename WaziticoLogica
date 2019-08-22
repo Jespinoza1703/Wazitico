@@ -1,0 +1,237 @@
+;; The first three lines of this file were inserted by DrRacket. They record metadata
+;; about the language level of this file in a form that our tools can easily process.
+#reader(lib "htdp-intermediate-reader.ss" "lang")((modname WaziticoLógica) (read-case-sensitive #t) (teachpacks ()) (htdp-settings #(#t constructor repeating-decimal #f #t none #f () #f)))
+#|
+-----------------FUNCIONES IMPORTANTES------------------------
+1. (generador-rutas  inicial final grafo) todas las rutas  sin distancias.
+2. (sumatoria path table) suma los pesos de una ruta.
+3. (rutasPesos lista)  le suma las distancias a todas las rutas generadas.
+4. (ruta-optima caminos) saca la ruta  con distancias más cortas.
+|#
+
+;_________________________________________________________________
+#|(define(set-punto lista)
+  (add-first lista kanto))
+|#
+;_________________________________________________________________
+
+#|
+Esta función se encarga de craear el mapa de la ciudad  donde se va a llevar acabo la
+aplicacion del algoritmo wazitico
+|#
+
+(define kanto '((a (c))
+             (b (c))
+             (c (a b d g))
+             (d (c e))
+             (f (k))
+             (g (f c h))
+             (h (g i))
+             (i (j h t))
+             (k (p n))
+             (m (t l))
+             (t (i m))
+             (n (k q o))
+             (o (r))
+             (q (n r))
+             (r (o s))
+             (s (m))
+             (e (d))
+             (j (i))
+             (l (n m))
+             (p (q))))
+#|
+Función para revisar si un nodo pertenece a la ruta o si ya fue visitado
+|#
+(define (miembro? ele lista)
+  (cond ((null? lista) #f)
+        ((equal? ele (car lista)) #t)
+        (else (miembro? ele (cdr lista)))))
+#|
+Función que mediante una tabla, encuentra las relaciones entre elemento y grafo
+|#
+(define (resultado ele grafo)
+  (assoc ele grafo))
+#|
+Función vecinos, para obtener los vecinos de un nodo.
+|#
+(define (vecinos ele grafo)
+    (cond ((equal? (resultado ele grafo) #f) #f)
+          (else (cadr (resultado ele grafo)))))
+
+#|
+Función  que hace la funcionalidad de  LAMBDA
+|#
+(define (chek x ruta)
+  (cond ((miembro? x ruta) '())    
+        (else (list (cons x ruta)))))
+#|
+función que se encarga de concatenar  las rutas del grafo.
+|#
+(define (maping vecino ruta)
+  (cond((equal? vecino '()) '())
+       (else(append (chek (car vecino) ruta) (maping (cdr vecino) ruta)))))
+#|
+Función que revisa si el primer elemento del grafo es igual al final
+|#
+(define (solucion? final ruta)
+  (equal? final (car ruta)))
+
+;Funcion Main(prueba)
+(define (extend ruta grafo)
+  (maping (vecinos (car ruta) grafo) ruta))
+
+
+
+#|-------------------------------generador-rutas---------------------------------
+
+
+Función cuyo fin es tomar un punto  inicial  en un mapa  y un punto final
+y calcular todas las posibles  rutas que puedan  haber
+|#
+(define (generador-rutas  inicial final grafo)
+  (generador-aux (list(list inicial)) final grafo '()))
+
+#|
+--------------------función auxiliar de "generador-rutas"--------------------------
+|#
+
+(define (generador-aux rutas final grafo soluciones)
+  (cond ((null? rutas) (reversa soluciones))
+        ((solucion? final (car rutas)) (generador-aux (cdr rutas) final grafo (cons (car rutas) soluciones)))
+        (else (generador-aux (append (extend (car rutas) grafo) (cdr rutas)) final grafo soluciones))))
+
+
+
+#|
+
+Método que  se encarga de  ejecutar un "reverse" a la solución con rutas
+|#
+(define (reversa soluciones)
+  (cond ((equal? soluciones '()) '())
+        (else (cons (reverse (car soluciones)) (reversa (cdr soluciones))))))
+
+#|
+Método  que crea una tabla con las distancias de las calles que conforman el mapa
+donde se aplica el algortimo de wazitico.
+
+------------------------------------------------------------------------------
+          Distancia de nodo a nodo interconectados en el grafo
+------------------------------------------------------------------------------
+|#
+
+(define hash '(((a c) 5)
+                ((c a) 5)
+                ((b c) 3)
+                ((c b) 3)
+                ((c d) 4)
+                ((d c) 4)
+                ((e d) 6)
+                ((d e) 6)
+                ((c g) 4)
+                ((g c) 4)
+                ((g f) 6)
+                ((f k) 12)
+                ((g h) 3)
+                ((h g) 4)
+                ((h i) 6)
+                ((i h) 6)
+                ((i j) 7)
+                ((j i) 7)
+                ((i t) 5)
+                ((t i) 5)
+                ((t m) 1)
+                ((m t) 1)
+                ((m l) 7)
+                ((l m) 7)
+                ((s m) 8)
+                ((l n) 2)
+                ((n o) 1)
+                ((n k) 4)
+                ((k n) 4)
+                ((k p) 5)
+                ((p q) 6)
+                ((q n) 5)
+                ((n q) 5)
+                ((o r) 4)
+                ((r o) 4)
+                ((q r) 2)
+                ((r s) 4)
+                ) )
+
+
+#|
+
+Método encargado de  comparar los caminos generados  por el usuario  a la hora de
+escoger un punto inicial y un  punto final dentro del mapa
+
+|#
+(define (first-value listica table)
+  (cond ((equal?(length listica)1)0)
+        (else(second (assoc (list (first listica) (second listica)) table)))))
+#|
+
+El método sumatoria, analiza las  conexiones  que existen entre los nodos de  todas las rutas
+ y este les asigna  un peso y suma el total de distancia  que  tiene  cada posible  ruta.
+
+|#
+(define (sumatoria path table)
+  (let ((total (first-value path table)))
+    (cond ((equal? total 0) total)
+        (else (+ total (sumatoria (cdr path) table))))));
+
+
+#|
+Método  se encarga de  tomar  todas la posibles rutas generados en el mapa, y les  asigna los pesos respectivos
+ a cada ruta .
+|#
+(define (pesosRuta caminos)
+  (cond ((equal? caminos '()) '())
+        (else (add-first (sumatoria (car caminos) hash) (car caminos)))))
+#|
+------------------------------------- FUNCION IMPORTANTE-------------------------------------------------
+           Realiza el calculo lógico de las sumas  de  distancias  para todas las  rutas posibles
+          selecionadas  que se crean al marcar un punto de origen y punto final. 
+|# 
+(define (rutasPesos lista)
+  (cond((equal? lista '()) '())
+       (else(cons (pesosRuta lista) (rutasPesos (cdr lista))))))
+
+#|
+Función que toma las rutas con los pesos  manda la ruta  con menor distancia de llegada de un lugar a otro
+
+
+-------------------------------------función Auxiliar---------------------------------------------------
+-                                                                                                      -
+- Función aux que toma  de la lista de caminos menor de los valores por cada iteración                 -
+-                                                                                                      -
+- Recibe el  primer valor de la lista  y la lista  restante  trucada con el cd como parametros         -
+- condición de parada  si el tamaño de la lista es 1 detiene la llamada recursiva y  pregunta  cual de -
+- los dos valores es el menor  y retorna la lista de ese valor                                         -
+-                                                                                                      -
+--------------------------------------------------------------------------------------------------------
+|#
+(define(ruta-optima caminos)
+  (cond((null? caminos)#f)
+       (else(rutaAux (car caminos) (cdr caminos)))))
+
+(define(rutaAux subpaths paths)
+  (cond((null? paths) subpaths)
+       ((< (car(car paths)) (car subpaths))
+        (rutaAux (car paths) (cdr paths)))
+       (else(rutaAux subpaths (cdr paths)))))
+
+;------------------------------------------------------------------------------------------------------
+
+
+
+#|
+Función que añade un valor/lista con otra lista
+|#
+(define (add-first ele lista)
+  (cons ele lista))
+
+
+
+
+

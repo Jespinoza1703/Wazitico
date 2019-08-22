@@ -1,0 +1,1 @@
+("7.4" racket ("d6773628eca44e24d674c3889aeee921fd691a97" . "139a63998e644c74dbb7b9c6f5262120f1935c89") (collects #"errortrace" #"errortrace-key.rkt") (collects #"htdp" #"bsl" #"runtime.rkt") (collects #"lang" #"htdp-intermediate-reader.rkt") (collects #"lang" #"htdp-intermediate.rkt") (collects #"racket" #"base.rkt") (collects #"racket" #"runtime-config.rkt"))
