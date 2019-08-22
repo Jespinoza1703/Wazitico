@@ -60,8 +60,8 @@
 ;------------------------------------ Hash for graphic-logic node connection ------------------------------------
 
 (define rect-list '( ((81 333) a 42)
-                     ((197 333) b 42)
-                     ((197 254) c 42)
+                     ((197 254) b 42)
+                     ((197 333) c 42)
                      ((197 480) d 42)
                      ((200 596) j 42)
                      ((345 451) h 42)
@@ -81,8 +81,8 @@
                      ((538 508) m 66)))
 
 (define coords-list '( (a ((102 354)))
-                     (b ((218 354)))
-                     (c ((218 275)))
+                     (b ((218 275)))
+                     (c ((218 354)))
                      (d ((218 501)))
                      (j ((221 617)))
                      (h ((366 472)))
@@ -92,14 +92,14 @@
                      (n ((671 321)))
                      (q ((812 321)))
                      (p ((812 177)))
-                     (r ((812 393)))
+                     (r ((812 391)))
                      (s ((812 541)))
                      (e ((54 503)))
-                     (f ((364 167)))
-                     (g ((364 352)))
-                     (k ((672 167)))
+                     (f ((366 167)))
+                     (g ((366 354)))
+                     (k ((672 171)))
                      (o ((672 391)))
-                     (m ((571 541)))))
+                     (m ((570 541)))))
 
 
 
@@ -177,7 +177,7 @@
   (draw-path-aux (car coords-list) (cadr coords-list) coords-list dc))
 
 
-;-------------------------------------- Canvas wrapper, override events --------------------------------------
+;-------------------------------------- Draw routes of all paths --------------------------------------
 
 
 (define (shortest-path nodeA nodeB)
@@ -185,15 +185,16 @@
 
 (define (draw-others nodeA nodeB list dc)
   (cond ((empty? list) #f)
-       ((draw-path (charList-to-coordsList (first list) '()) dc) (draw-others nodeA nodeB (cdr (generador-rutas nodeA nodeB kanto)) dc))))
+       ((draw-path (charList-to-coordsList (first list) '()) dc) (draw-others nodeA nodeB (cdr list) dc))))
 
 (define (draw-all nodeA nodeB dc)
-  (send dc set-pen (make-color 158 57 115) 15 'solid)
+  (send dc set-pen "blue" 15 'solid)
   (draw-path (charList-to-coordsList (shortest-path nodeA nodeB) '()) dc)
-  (send dc set-pen "black" 5 'solid)
-  (draw-others nodeA nodeB (generador-rutas nodeA nodeB kanto) dc ))
+  (send dc set-pen "orange" 6 'solid)
+  (draw-others nodeA nodeB (generador-rutas nodeA nodeB kanto) dc))
 
-  
+
+
 (define nodeA 'a)
 (define nodeB 'b)
 
@@ -235,7 +236,7 @@
                 [font (make-object font% 50 'default 'normal 'bold)]
                 [callback show-map1]))
 
-
+  
 
 ;Draws map1 (Kanto) on screen and aligns it to the center
 (define (draw-map1 frame dc)
@@ -244,8 +245,7 @@
   (send dc set-pen "black" 2 'solid)
   (send dc draw-rectangle x-offset y-offset (+ 1 poke-bg-width) (+ 1 poke-bg-height))
   
-  (send dc draw-bitmap map1-kanto x-offset y-offset)
-  (send dc set-pen (make-color 158 57 115) 8 'solid))
+  (send dc draw-bitmap map1-kanto x-offset y-offset))
 
 (define map1-canvas (new my-canvas%
                    [parent map1-frame]
@@ -253,6 +253,31 @@
 
 (define map1-dc (send map1-canvas get-dc))
 
+
+(define (clear-canvas1 button event)
+  (send map1-dc clear)
+  (draw-map1 map1-frame map1-dc))
+
+;Clears canvas
+(define clear-button (new button%	 
+   	 	[label "Choose again!"]	 
+   	 	[parent map1-frame]
+                [min-width 30]
+                [min-height 20]
+                [callback clear-canvas1]))
+
+(define (return button event)
+  (send map1-frame show #f)
+  (send main-frame show #t))
+
+
+;Returns to menu
+(define return-button (new button%	 
+   	 	[label "Return to menu"]	 
+   	 	[parent map1-frame]
+                [min-width 30]
+                [min-height 20]
+                [callback return]))
 
 ;-------------------------------------------------- Johto (second map) --------------------------------------------------
 
