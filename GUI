@@ -80,6 +80,28 @@
                      ((639 358) o 66)
                      ((538 508) m 66)))
 
+(define coords-list '( (a ((102 354)))
+                     (b ((218 354)))
+                     (c ((218 275)))
+                     (d ((218 501)))
+                     (j ((221 617)))
+                     (h ((366 472)))
+                     (i ((366 617)))
+                     (t ((570 617)))
+                     (l ((570 321)))
+                     (n ((671 321)))
+                     (q ((812 321)))
+                     (p ((812 177)))
+                     (r ((812 393)))
+                     (s ((812 541)))
+                     (e ((54 503)))
+                     (f ((364 167)))
+                     (g ((364 352)))
+                     (k ((672 167)))
+                     (o ((672 391)))
+                     (m ((571 541)))))
+
+
 
 ;----------------------------- Funtion for collision between rects and mouse ------------------------------
 
@@ -107,11 +129,6 @@
   (collision-aux mouse-x mouse-y (caar list) (last (cadr list)) list))
 
 
-; ------------------------------- Test -------------------------------
-
-(define coords-list '((216 500) (216 352) (365 352) (365 168) (672 168)))
-
-
 ;---------------------------------- Transform char list to coords list ---------------------------------
 
 (define click 0)
@@ -130,15 +147,14 @@
 
   
 ;Translates the char path to coords for drawing on canvas
-(define (charList-to-coordsList char-list coords)
-  (charList-to-coordsList-aux char-list coords rect-list))
 
-   
-(define (charList-to-coordsList-aux char-list coords list2)
+(define (charList-to-coordsList char-list coords)
+  (charList-to-coordsList-aux char-list coords))
+
+
+(define (charList-to-coordsList-aux char-list coords)
   (cond ((empty? char-list) coords)
-       ((equal? (first char-list) (get-char list2)) (add-last (from-char-to-coords (first char-list)) (charList-to-coordsList-aux char-list coords (cdr list2))))
-       (else
-        (charList-to-coordsList-aux (cdr char-list) coords list2))))
+       (else (add-last (second (assoc (first char-list) coords-list)) (charList-to-coordsList-aux (cdr char-list) coords)))))
 
 
 (charList-to-coordsList '(a b f g h) '())
